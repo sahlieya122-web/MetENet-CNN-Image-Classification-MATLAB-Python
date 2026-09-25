@@ -8,7 +8,7 @@ MetENet is a custom Convolutional Neural Network architecture designed for image
 
 ## Author
 
-**Montassar Laboudi**
+**Eya Sahli**
 
 ---
 
