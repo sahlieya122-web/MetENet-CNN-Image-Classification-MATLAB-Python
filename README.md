@@ -380,13 +380,24 @@ Possible extensions of this work include:
 
 ---
 
-## Repository Scope
+## Repository Structure
 
-This repository presents the methodology, model architecture, experimental evaluation and selected results of the project.
+This repository contains the MATLAB implementation of the MetENet project together with selected experimental results and visualizations.
 
-> **The source code is intentionally not publicly available.**
-
-Selected result figures are provided for academic, portfolio and documentation purposes.
+```text
+MetENet-CNN-Image-Classification-MATLAB-Python/
+│
+├── src/
+│   └── MATLAB source code
+│
+├── figures/
+│   ├── training-progress.png
+│   ├── cifar10-confusion-matrix.png
+│   ├── cifar10-predictions.png
+│   ├── fashion-mnist-predictions.png
+│   └── svhn-predictions.png
+│
+└── README.md
 
 ---
 
@@ -394,8 +405,3 @@ Selected result figures are provided for academic, portfolio and documentation p
 
 **Eya Sahli**  **Montassar Laboudi**
 Signal Processing, Embedded Systems & AI Engineer
-Supervised by **Ahcen Aliouet**
-
-### Portfolio
-
-[Eya Sahli — Engineering Portfolio](https://eya-sahli-portfolio.vercel.app)
