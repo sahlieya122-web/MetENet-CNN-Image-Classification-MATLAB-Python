@@ -401,5 +401,4 @@ MetENet-CNN-Image-Classification-MATLAB/
 ```
 ## Authors
 
-**Eya Sahli**  **Montassar Laboudi**
-Signal Processing, Embedded Systems & AI Engineer
+**Eya Sahli** 
