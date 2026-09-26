@@ -1,314 +1,401 @@
+MetENet-CNN-Image-Classification
+Custom CNN for image classification on CIFAR-10, with cross-validation, benchmark comparison and generalization on Fashion-MNIST and SVHN.
+# MetENet — CNN Image Classification for Object Recognition
 
-# MetENet-CNN-Image-Classification-MATLAB-Python
-MetENet is a custom Convolutional Neural Network architecture designed for image classification, implemented in both MATLAB and Python (PyTorch). This repository covers the full experimental pipeline: architecture design, training, hyperparameter tuning, cross-validation, transfer learning comparisons, and multi-dataset evaluation.
+## Overview
 
----
+This project focuses on **image classification using Convolutional Neural Networks (CNNs)** for object recognition.
 
-## Author
+A custom CNN architecture named **MetENet** was designed, trained and evaluated on the **CIFAR-10 dataset**.
 
-**Eya Sahli**
+The project explores the complete machine-learning workflow, including:
 
----
+- dataset analysis and preprocessing,
+- CNN architecture design,
+- model optimization,
+- training and validation,
+- performance evaluation,
+- cross-validation,
+- comparison with well-known CNN architectures,
+- and generalization on additional datasets.
 
-## Table of Contents
-
-1. [Project Overview](#project-overview)
-2. [MetENet Architecture](#metenet-architecture)
-3. [Datasets](#datasets)
-4. [Repository Structure](#repository-structure)
-5. [Environment Setup](#environment-setup)
-6. [MATLAB Implementation](#matlab-implementation)
-7. [Python / PyTorch Implementation](#python--pytorch-implementation)
-8. [Training Strategy](#training-strategy)
-9. [Results](#results)
-10. [Technologies](#technologies)
-11. [License](#license)
+The objective was to develop a CNN capable of achieving competitive classification performance while maintaining a relatively efficient architecture.
 
 ---
 
-## Project Overview
+## Project Context
 
-This project focuses on:
+This work was developed as an academic integrative project during the **2024–2025 academic year**.
 
-- Designing and evaluating **MetENet**, a custom VGG-style CNN architecture
-- Training and evaluating MetENet on **CIFAR-10**, **Fashion-MNIST**, and **SVHN**
-- Comparing MetENet against well-known pretrained CNN architectures (AlexNet, GoogLeNet, SqueezeNet, MobileNetV2, ResNet-18)
-- Testing different data-splitting strategies and applying **5-fold cross-validation**
-- Providing **Python (PyTorch) equivalents** of the MATLAB experiments as Jupyter Notebooks
-- Providing both `.mlx` (Live Script) and `.m` (plain script) versions for usability
+**Developed by:**  
+Eya Sahli & Montassar Laboudi
+
+**Supervisor:**  
+Ahcen Aliouet
+
+The project focuses on:
+
+- Deep Learning
+- Computer Vision
+- Image Classification
+- Convolutional Neural Networks
+- Model Optimization
+- Performance Evaluation
+
+---
+
+## Dataset — CIFAR-10
+
+The main dataset used in this project is **CIFAR-10**.
+
+CIFAR-10 contains **60,000 RGB images** of size **32 × 32 pixels**, distributed across 10 object categories:
+
+- Airplane
+- Automobile
+- Bird
+- Cat
+- Deer
+- Dog
+- Frog
+- Horse
+- Ship
+- Truck
+
+The dataset is balanced across the different classes.
+
+---
+
+## Dataset Split
+
+Two validation strategies were evaluated.
+
+### Classical Train / Validation / Test Split
+
+The dataset was divided as follows:
+
+- **70% Training**
+- **10% Validation**
+- **20% Testing**
+
+### 5-Fold Cross-Validation
+
+A second evaluation was performed using **5-fold cross-validation**.
+
+The model was trained five times, with four folds used for training and one fold used for validation during each iteration.
+
+The resulting accuracies were:
+
+| Fold | Accuracy |
+|---|---:|
+| Fold 1 | 86.64% |
+| Fold 2 | 86.64% |
+| Fold 3 | 87.05% |
+| Fold 4 | 86.32% |
+| Fold 5 | 86.44% |
+| **Average** | **86.62%** |
+
+The standard dataset split achieved an accuracy of **86.55%**, showing very similar performance between both evaluation strategies.
 
 ---
 
 ## MetENet Architecture
 
-MetENet is a custom CNN inspired by VGG-style convolutional blocks. It uses progressively increasing filter counts and regularisation at each stage.
+MetENet is a custom CNN architecture inspired by the principles of deeper convolutional networks such as VGG.
 
-![MetENet Architecture](figures/architecture_metenet.png)
+Several architectures were explored during development before selecting a **four-block convolutional architecture**.
 
-```
-Input: 32 × 32 × 3
+### Block 1
 
-Block 1  — Conv(3×3, 32) → BN → ReLU → Conv(3×3, 32) → BN → ReLU → MaxPool(2×2) → Dropout(0.10)
-Block 2  — Conv(3×3, 64) → BN → ReLU → Conv(3×3, 64) → BN → ReLU → MaxPool(2×2) → Dropout(0.20)
-Block 3  — Conv(3×3,128) → BN → ReLU → Conv(3×3,128) → BN → ReLU → MaxPool(2×2) → Dropout(0.30)
-Block 4  — Conv(3×3,256) → BN → ReLU → Conv(3×3,256) → BN → ReLU → MaxPool(2×2) → Dropout(0.30)
-
-Fully Connected:
-  Dense(1024) → ReLU → Dropout(0.35)
-  Dense(128)  → ReLU → Dropout(0.35)
-  Dense(10)   → Softmax
+```text
+Conv 3×3 — 32 filters
+Conv 3×3 — 32 filters
+Batch Normalization
+ReLU
+Max Pooling 2×2
 ```
 
-**Design choices:**
-- Batch Normalisation after every convolution for training stability
-- Increasing dropout per block to prevent over-fitting in deeper representations
-- Two convolutional layers per block for richer feature extraction before downsampling
+### Block 2
+
+```text
+Conv 3×3 — 64 filters
+Conv 3×3 — 64 filters
+Batch Normalization
+ReLU
+Max Pooling 2×2
+```
+
+### Block 3
+
+```text
+Conv 3×3 — 128 filters
+Conv 3×3 — 128 filters
+Batch Normalization
+ReLU
+Max Pooling 2×2
+```
+
+### Block 4
+
+```text
+Conv 3×3 — 256 filters
+Conv 3×3 — 256 filters
+Batch Normalization
+ReLU
+Max Pooling 2×2
+```
+
+The progressive increase in the number of filters allows the network to learn increasingly complex image representations.
+
+Early layers mainly detect low-level characteristics such as edges and textures, while deeper layers capture more complex visual patterns.
 
 ---
 
-## Datasets
+## Regularization
 
-### CIFAR-10 (primary)
+Dropout was introduced to reduce overfitting.
 
-| Property | Value |
-|---|---|
-| Image size | 32 × 32 × 3 (colour) |
-| Classes | 10 |
-| Training images | 50,000 |
-| Test images | 10,000 |
+Different dropout rates were used depending on the depth of the network:
 
-Classes: airplane, automobile, bird, cat, deer, dog, frog, horse, ship, truck.
+| Layer | Dropout |
+|---|---:|
+| Block 1 | 0.10 |
+| Block 2 | 0.20 |
+| Block 3 | 0.30 |
+| Block 4 | 0.30 |
+| Fully Connected Layer | 0.35 |
 
-### Fashion-MNIST (additional)
-
-Grayscale images of fashion items (clothing, shoes, bags). Used as a more challenging alternative to MNIST to evaluate MetENet's generalisation on a different visual domain.
-
-### SVHN — Street View House Numbers (additional)
-
-Real-world digit images extracted from street number photographs. Introduces additional challenges including natural-scene noise and class imbalance.
-
----
-
-## Repository Structure
-
-```
-MetENet-CNN-Image-Classification-MATLAB/
-│
-├── src/
-│   ├── 01_metenet_3_blocks.mlx          # MetENet with 3 conv blocks (MATLAB)
-│   ├── 01_metenet_3_blocks.m
-│   ├── 02_metenet_4_blocks.mlx          # MetENet with 4 conv blocks (MATLAB)
-│   ├── 02_metenet_4_blocks.m
-│   ├── 03_best_result_metenet.mlx       # Best configuration + tuning (MATLAB)
-│   ├── 03_best_result_metenet.m
-│   ├── 04_cross_validation.mlx          # 5-fold cross-validation (MATLAB)
-│   ├── 04_cross_validation.m
-│   ├── pretrained_models/
-│   │   ├── fine_tuning/                 # Pretrained CNNs fine-tuned on CIFAR-10
-│   │   └── full_training/              # Pretrained CNNs trained from scratch
-│   └── additional_datasets/            # Fashion-MNIST and SVHN experiments
-│
-├── Python-PyTorch/
-│   ├── MetENet_cifar10.ipynb            # MetENet on CIFAR-10 (PyTorch)
-│   ├── ResNet18_cifar10.ipynb           # ResNet-18 transfer learning on CIFAR-10 (PyTorch)
-│   └── MetENet_SVHN.ipynb               # MetENet on SVHN (PyTorch)
-│
-├── docs/
-│   ├── initial_results.md               # Initial model comparison results
-│   ├── cross_validation_and_full_training.md
-│   └── additional_datasets.md          # Fashion-MNIST and SVHN results
-│
-├── MetENet.pth                          # Saved PyTorch model weights
-├── .venv/                               # Python virtual environment (Python 3.14 + CUDA)
-└── README.md
-```
-
----
-
-## Environment Setup
-
-### MATLAB
-
-- MATLAB R2023a or later
-- Deep Learning Toolbox
-- Image Processing Toolbox
-- Datasets are downloaded automatically by the Live Scripts
-
-### Python / PyTorch
-
-**Requirements:**
-- Python 3.14
-- PyTorch 2.12.0 + CUDA 12.6 (`torch`, `torchvision`)
-- `scikit-learn`, `matplotlib`, `numpy`, `notebook`, `ipykernel`
-
-**Setup using the included virtual environment:**
-
-```bash
-# Activate the virtual environment (Windows)
-.venv\Scripts\activate
-
-# Register the Jupyter kernel (first time only)
-python -m ipykernel install --user --name metenet-env --display-name "MetENet (Python 3.14 + CUDA)"
-
-# Launch Jupyter Notebook
-jupyter notebook
-```
-
-Open the desired notebook from the `Python-PyTorch/` folder and select the **MetENet (Python 3.14 + CUDA)** kernel.
-
----
-
-## MATLAB Implementation
-
-The MATLAB experiments are organised as sequential Live Scripts (`.mlx`) with equivalent plain scripts (`.m`) for readability.
-
-| Script | Description |
-|---|---|
-| `01_metenet_3_blocks` | MetENet with 3 convolutional blocks |
-| `02_metenet_4_blocks` | MetENet with 4 convolutional blocks (improved) |
-| `03_best_result_metenet` | Best configuration with optimised hyperparameters |
-| `04_cross_validation` | 5-fold cross-validation on the best configuration |
-| `pretrained_models/fine_tuning/` | AlexNet, GoogLeNet, SqueezeNet, MobileNetV2, ResNet-18 fine-tuned |
-| `pretrained_models/full_training/` | Same architectures trained from random initialisation |
-| `additional_datasets/` | MetENet applied to Fashion-MNIST and SVHN |
-
-**Training environment (MATLAB):**
-
-| Component | Specification |
-|---|---|
-| OS | Windows 11 |
-| CPU | Intel Core i5-13450HX |
-| RAM | 32 GB |
-| GPU | NVIDIA RTX 3050 6 GB Laptop |
-
----
-
-## Python / PyTorch Implementation
-
-Three Jupyter Notebooks replicate the MATLAB experiments in PyTorch with identical architecture and comparable hyperparameters. All notebooks are in `Python-PyTorch/`.
-
-### `MetENet_cifar10.ipynb`
-
-Full MetENet training pipeline on CIFAR-10.
-
-- **Sections:** Setup & Imports → Dataset Loading → Preprocessing → Architecture → Training → Evaluation → Confusion Matrix → Per-class Accuracy → Comparison Summary
-- **Normalisation:** Zero-centre (mean/std computed on training split only, mirroring MATLAB's `zerocenter` InputLayer)
-- **Optimiser:** Adam, lr = 0.001
-- **Scheduler:** StepLR, factor = 0.7 every 4 epochs
-- **Batch size:** 128 | **Max epochs:** 30 | **Early stopping patience:** 3
-
-### `ResNet18_cifar10.ipynb`
-
-ResNet-18 transfer learning from ImageNet weights on CIFAR-10, mirroring the MATLAB fine-tuning experiment.
-
-- **Pre-trained weights:** `ResNet18_Weights.IMAGENET1K_V1`
-- **Head replacement:** `fc → Linear(512, 10)`
-- **Partial freeze:** first 50 % of parameterised modules frozen
-- **Learning rates:** base layers 0.001, new FC 0.01 (10× factor, matching MATLAB's `WeightLearnRateFactor=10`)
-- **Scheduler:** StepLR, factor = 0.5 every 3 epochs
-- **Input:** 224 × 224 (bicubic resize), ImageNet normalisation
-- **Early stopping patience:** 2
-
-### `MetENet_SVHN.ipynb`
-
-MetENet 4-block architecture applied to the SVHN dataset.
-
-- Same architecture and hyperparameters as `MetENet_cifar10.ipynb`
-- Uses `torchvision.datasets.SVHN` with automatic label 10→0 conversion
-- Includes full evaluation: accuracy, confusion matrix, per-class breakdown
+This progressive regularization strategy helps preserve low-level feature learning in the first layers while applying stronger regularization to deeper representations.
 
 ---
 
 ## Training Strategy
 
-Both MATLAB and PyTorch implementations share the same core strategy:
+The network was trained using the **Adam optimizer**.
 
-| Component | Value |
-|---|---|
-| Optimiser | Adam |
-| Batch size | 128 |
-| Max epochs | 30 |
-| Learning rate | 0.001 (initial) |
-| LR schedule | Step decay |
-| Regularisation | Batch Normalisation + Dropout |
-| Early stopping | Yes (patience 2–3 epochs) |
+Several parameters were adjusted during the optimization phase, including:
+
+- learning rate,
+- number of epochs,
+- mini-batch size,
+- validation frequency,
+- dropout rate,
+- number of convolutional blocks,
+- number of filters.
+
+An **early stopping mechanism** was also used to reduce unnecessary training once validation performance stopped improving.
 
 ---
 
-## Results
+## Training Performance
 
-### CIFAR-10 — Initial Architecture Comparison (Fine-Tuning / Transfer Learning)
+The selected MetENet configuration reached approximately **86.55% classification accuracy on CIFAR-10**.
 
-| Model | Accuracy |
-|---|---:|
-| AlexNet | 80.07% |
-| MetENet 3 Blocks | 82.00% |
-| SqueezeNet | 85.79% |
-| MetENet 4 Blocks | 86.04% |
-| GoogLeNet | 87.79% |
-| MobileNetV2 | 90.91% |
-| ResNet-18 | 91.80% |
+<p align="center">
+  <img src="assets/training-progress.png" width="850">
+</p>
 
-### CIFAR-10 — Full Training from Scratch (Pretrained Architectures)
+The training curves show progressive improvement in classification accuracy together with a reduction in the loss function.
+
+---
+
+## Confusion Matrix
+
+The confusion matrix provides a detailed view of the model's classification behavior across all CIFAR-10 classes.
+
+<p align="center">
+  <img src="assets/cifar10-confusion-matrix.png" width="700">
+</p>
+
+Strong classification performance can be observed for classes such as:
+
+- automobile,
+- airplane,
+- frog,
+- horse,
+- ship,
+- truck.
+
+Some confusion remains between visually similar categories such as **cat and dog**, which represents a common challenge on CIFAR-10.
+
+---
+
+## Prediction Examples
+
+The following examples show predictions generated by MetENet together with their confidence probabilities.
+
+<p align="center">
+  <img src="assets/cifar10-predictions.png" width="800">
+</p>
+
+---
+
+## Comparison with Reference CNN Architectures
+
+MetENet was compared with several widely used CNN architectures.
+
+| Model | Accuracy | F1-Score | Error Rate | Training Time |
+|---|---:|---:|---:|---:|
+| AlexNet | 80.07% | 80.07% | 19.93% | 14 min 11 s |
+| SqueezeNet | 85.79% | 85.79% | 14.21% | 14 min 53 s |
+| **MetENet** | **86.55%** | **86.55%** | **13.45%** | **11 min 55 s** |
+| GoogLeNet | 87.79% | 87.79% | 12.21% | 31 min 53 s |
+| MobileNetV2 | 90.91% | 90.91% | 9.09% | 364 min 11 s |
+| ResNet18 | 91.80% | 91.80% | 8.20% | 17 min 59 s |
+
+The results show that MetENet provides competitive performance while maintaining a relatively efficient training time in the experimental environment.
+
+---
+
+## Training from Scratch
+
+A second comparison was performed by training selected architectures entirely from scratch.
 
 | Model | Accuracy |
 |---|---:|
 | AlexNet | 76.79% |
 | SqueezeNet | 83.36% |
 | GoogLeNet | 84.20% |
-| ResNet-18 | 90.68% |
+| **MetENet** | **86.55%** |
+| ResNet18 | 90.68% |
 
-> AlexNet shows signs of overfitting when trained from scratch on CIFAR-10.
+In this experiment, MetENet achieved higher accuracy than AlexNet, SqueezeNet and GoogLeNet.
 
-### CIFAR-10 — Optimised MetENet
+---
 
-| Configuration | Accuracy |
+# Generalization to Other Datasets
+
+To evaluate whether the architecture could generalize beyond CIFAR-10, MetENet was also evaluated on additional image datasets.
+
+---
+
+## Fashion-MNIST
+
+Fashion-MNIST contains **70,000 grayscale images** of clothing items distributed across 10 classes.
+
+MetENet achieved:
+
+## **92.72% Accuracy**
+
+Example predictions:
+
+<p align="center">
+  <img src="assets/fashion-mnist-predictions.png" width="800">
+</p>
+
+These results show that the architecture is capable of extracting useful features from a dataset with visual characteristics significantly different from CIFAR-10.
+
+---
+
+## Street View House Numbers — SVHN
+
+The **SVHN dataset** contains real-world images of house numbers captured from Google Street View.
+
+Compared with CIFAR-10 and Fashion-MNIST, the images may contain additional challenges such as:
+
+- blur,
+- illumination variations,
+- real-world backgrounds,
+- class imbalance.
+
+MetENet achieved:
+
+## **95.3941% Accuracy**
+
+Example predictions:
+
+<p align="center">
+  <img src="assets/svhn-predictions.png" width="800">
+</p>
+
+The results demonstrate the ability of the model to generalize to a different image-recognition problem involving real-world digit images.
+
+---
+
+## Key Results
+
+| Experiment | Accuracy |
 |---|---:|
-| MetENet 4 Blocks (best hyperparameters) | 86.55% |
-| MetENet 4 Blocks — 5-Fold Cross-Validation (mean) | 86.62% |
-
-The cross-validation result confirms that the 86.55% accuracy is stable and not due to a favourable random split.
-
-### Additional Datasets
-
-| Dataset | Model | Accuracy |
-|---|---|---:|
-| Fashion-MNIST | MetENet 4 Blocks | 92.72% |
-| SVHN | MetENet 4 Blocks | 95.39% |
-
-MetENet generalises effectively beyond CIFAR-10, achieving strong results on both grayscale (Fashion-MNIST) and real-world noisy (SVHN) datasets.
+| CIFAR-10 — Standard Split | **86.55%** |
+| CIFAR-10 — 5-Fold Cross-Validation | **86.62%** |
+| Fashion-MNIST | **92.72%** |
+| SVHN | **95.3941%** |
 
 ---
 
-## MATLAB vs PyTorch — Implementation Notes
+## Tools & Technologies
 
-The MetENet architecture is identical across both frameworks. Small result differences may occur due to:
-
-| Factor | Detail |
+| Area | Technologies |
 |---|---|
-| Weight initialisation | Different default strategies per framework |
-| Optimiser internals | MATLAB Adam vs PyTorch Adam numerical differences |
-| Data normalisation | MATLAB `zerocenter` vs PyTorch computed mean/std |
-| Random seed handling | Framework-level differences in shuffle order |
-| GPU kernel precision | Minor floating-point differences at the CUDA level |
-
-These variations are expected in cross-framework deep learning comparisons and do not indicate an implementation error.
-
----
-
-## Technologies
-
-| Category | Tools |
-|---|---|
-| Deep learning (MATLAB) | MATLAB Deep Learning Toolbox, Image Processing Toolbox |
-| Deep learning (Python) | PyTorch 2.12.0+cu126, torchvision 0.27.0+cu126 |
-| Notebooks | Jupyter Notebook (`.ipynb`), MATLAB Live Scripts (`.mlx`) |
-| Evaluation | scikit-learn (confusion matrix, classification report) |
-| Visualisation | matplotlib |
-| Environment | Python 3.14, CUDA 12.6, NVIDIA RTX 3050 6 GB |
+| Deep Learning | Convolutional Neural Networks |
+| Development | MATLAB |
+| Optimization | Adam |
+| Validation | Train/Validation/Test, 5-Fold Cross-Validation |
+| Evaluation | Accuracy, Precision, Recall, F1-Score, Confusion Matrix |
+| Computer Vision | Image Classification, Object Recognition |
+| Datasets | CIFAR-10, Fashion-MNIST, SVHN |
+| Hardware | NVIDIA GPU |
 
 ---
 
-## License
+## Skills Demonstrated
 
-This project is licensed under the MIT License.
+- Deep Learning
+- Convolutional Neural Networks
+- Computer Vision
+- Image Classification
+- CNN Architecture Design
+- Hyperparameter Optimization
+- Cross-Validation
+- Model Evaluation
+- Confusion Matrix Analysis
+- MATLAB
+- Experimental Analysis
+- Scientific Documentation
+
+---
+
+## Conclusion
+
+The project resulted in the development of **MetENet**, a custom CNN architecture designed for image classification.
+
+The model achieved **86.55% accuracy on CIFAR-10** and showed consistent performance through **5-fold cross-validation with an average accuracy of 86.62%**.
+
+The comparison with established CNN architectures showed competitive performance, particularly when considering training efficiency.
+
+The additional experiments on **Fashion-MNIST (92.72%)** and **SVHN (95.3941%)** demonstrated that the architecture can also generalize to datasets with substantially different visual characteristics.
+
+---
+
+## Future Work
+
+Possible extensions of this work include:
+
+- additional architecture optimization,
+- data augmentation strategies,
+- automated hyperparameter optimization,
+- lightweight deployment on embedded platforms,
+- model compression and quantization,
+- real-time image classification,
+- evaluation on additional real-world datasets.
+
+---
+
+## Repository Scope
+
+This repository presents the methodology, model architecture, experimental evaluation and selected results of the project.
+
+> **The source code is intentionally not publicly available.**
+
+Selected result figures are provided for academic, portfolio and documentation purposes.
+
+---
+
+## Authors
+
+**Eya Sahli**  **Montassar Laboudi**
+Signal Processing, Embedded Systems & AI Engineer
+Supervised by **Ahcen Aliouet**
+
+### Portfolio
+
+[Eya Sahli — Engineering Portfolio](https://eya-sahli-portfolio.vercel.app)
