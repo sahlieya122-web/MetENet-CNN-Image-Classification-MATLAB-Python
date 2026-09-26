@@ -385,7 +385,8 @@ Possible extensions of this work include:
 This repository contains the MATLAB implementation of the MetENet project together with selected experimental results and visualizations.
 
 ```text
-MetENet-CNN-Image-Classification-MATLAB-Python/
+
+MetENet-CNN-Image-Classification-MATLAB/
 │
 ├── src/
 │   └── MATLAB source code
@@ -399,8 +400,7 @@ MetENet-CNN-Image-Classification-MATLAB-Python/
 │
 └── README.md
 
----
-
+```
 ## Authors
 
 **Eya Sahli**  **Montassar Laboudi**
