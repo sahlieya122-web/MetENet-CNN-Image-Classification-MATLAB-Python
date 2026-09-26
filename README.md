@@ -1,5 +1,3 @@
-MetENet-CNN-Image-Classification
-Custom CNN for image classification on CIFAR-10, with cross-validation, benchmark comparison and generalization on Fashion-MNIST and SVHN.
 # MetENet — CNN Image Classification for Object Recognition
 
 ## Overview
